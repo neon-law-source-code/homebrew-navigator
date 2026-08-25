@@ -1,9 +1,9 @@
 # Homebrew Navigator
 
-The Homebrew tap for the [Neon Law Navigator](https://github.com/neon-law-foundation/navigator) CLI.
+The Homebrew tap for the [Neon Law Navigator](https://github.com/neon-law-source-code/navigator) CLI.
 
 ```bash
-brew install neon-law-foundation/navigator/navigator
+brew install neon-law-source-code/navigator/navigator
 ```
 
 That one line taps this repository and installs `navigator`. Upgrades come with `brew upgrade navigator`, and the
@@ -30,7 +30,7 @@ stands in until it lands.
 
 ## How a release reaches this tap
 
-1. Someone pushes a `YY.M.D` tag to `neon-law-foundation/navigator`.
+1. Someone pushes a `YY.M.D` tag to `neon-law-source-code/navigator`.
 2. That repository's `deploy.yml` proves the workspace, publishes the images, and builds three CLI archives on the
    free `windows-latest`, `ubuntu-latest`, and `macos-latest` runners, attaching them to the GitHub Release.
 3. Its `release-homebrew-tap` job fires a `repository_dispatch` at this repository carrying the tag.
