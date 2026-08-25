@@ -31,7 +31,7 @@
 # workaround for its absence, not a replacement.
 class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
-  homepage "https://github.com/neon-law-foundation/navigator"
+  homepage "https://github.com/neon-law-source-code/navigator"
   version "26.8.27"
   # Navigator is AGPL-3.0-only. `-only` and not `-or-later`: the workspace
   # manifest declares exactly that, and a formula that widened it would offer
@@ -41,7 +41,7 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-foundation/navigator/releases/download/26.8.27/navigator-26.8.27-macos.tar.gz"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.27/navigator-26.8.27-macos.tar.gz"
       sha256 "37fda084d33d955d08daf9ac220679863abca5f3284e2704e74574a5b0fc9ceb"
     end
 
@@ -49,7 +49,7 @@ class Navigator < Formula
       # No prebuilt x86_64 archive exists: `macos-latest` is Apple silicon, and
       # a second full release compile on the slowest runner class is not bought.
       # Compile the source tag instead.
-      url "https://github.com/neon-law-foundation/navigator/archive/refs/tags/26.8.27.tar.gz"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.27.tar.gz"
       sha256 "e739a6397760b2e09b1f1f7292b26c5dabba551673549d3ce84fe83e7d00975c"
 
       depends_on "rust" => :build
@@ -58,13 +58,13 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-foundation/navigator/releases/download/26.8.27/navigator-26.8.27-linux.tar.gz"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.27/navigator-26.8.27-linux.tar.gz"
       sha256 "56ef7a9598453eb7301c49914f7215f6572fc0627a3259bf9fcbbc03ecef3deb"
     end
 
     on_arm do
       # Same reasoning as Intel macOS: the release publishes x86_64 Linux only.
-      url "https://github.com/neon-law-foundation/navigator/archive/refs/tags/26.8.27.tar.gz"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.27.tar.gz"
       sha256 "e739a6397760b2e09b1f1f7292b26c5dabba551673549d3ce84fe83e7d00975c"
 
       depends_on "rust" => :build
