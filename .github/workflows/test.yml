@@ -100,8 +100,48 @@ jobs:
       # enforces homebrew-core submission rules, several of which a tap is
       # entitled to ignore, and a gate that fails for reasons you intend to keep
       # is a gate people learn to skip.
+      #
+      # `--except=version` is that same judgement applied to one more rule, and
+      # the formula's `version` line is the reason. Homebrew reads a version out
+      # of the URL and calls an explicit `version` redundant when the two agree.
+      # They agree for an ordinary `YY.M.D` tag and do NOT for a
+      # `YY.M.D-hotfix.N` one. Measured with `Version.detect`, for the two
+      # shapes this tap publishes:
+      #
+      #   .../download/26.8.24/navigator-26.8.24-linux.tar.gz          -> 26.8.24
+      #   .../download/26.8.22-hotfix.23/navigator-...-linux.tar.gz    -> 26.8.22
+      #   .../archive/refs/tags/26.8.24.tar.gz                         -> 26.8.24
+      #   .../archive/refs/tags/26.8.22-hotfix.23.tar.gz               -> 23
+      #
+      # So the line is REFUSED for an ordinary release and REQUIRED for a
+      # hotfix: drop it there and the formula quietly claims `26.8.22`, with no
+      # audit failure to show for it. Every bump before `26.8.24` was a hotfix,
+      # which is why this rule had never fired here and now fires on every
+      # ordinary release.
+      #
+      # Declaring the version always is the safer half of that trade. It never
+      # depends on a scanner this tap has measured getting its own releases
+      # wrong, and it keeps the formula one shape rather than a shape that
+      # depends on which kind of tag it happens to hold. What `--except=version`
+      # gives up is the rest of `audit_version`: a missing-version check, which
+      # the step below and `bump.sh` both make more strictly, and an OCI tag
+      # rule that applies to core or bottled formulae, which this is neither.
       - name: brew audit
-        run: brew audit --online --formula neon-law-source-code/navigator/navigator
+        run: brew audit --online --except=version --formula neon-law-source-code/navigator/navigator
+
+      # The one thing `--except=version` gave up that could actually bite. The
+      # formula must SAY its version, because Homebrew's fallback is to infer
+      # one and its inference is wrong for half the tags this tap publishes.
+      # `bump.sh` asserts this at publish time; this asserts it for a hand edit,
+      # which is the path `bump.sh` never sees.
+      - name: the formula declares its version explicitly
+        run: |
+          set -euo pipefail
+          if ! grep -Eq '^[[:space:]]*version "[^"]+"$' Formula/navigator.rb; then
+              echo "::error::Formula/navigator.rb declares no explicit version. Homebrew would infer one from the URL, and for a YY.M.D-hotfix.N tag it infers the base version instead — 26.8.22 for 26.8.22-hotfix.23 — with no audit failure to show for it."
+              exit 1
+          fi
+          grep -E '^[[:space:]]*version "[^"]+"$' Formula/navigator.rb
 
   prebuilt:
     name: install on ${{ matrix.label }}
