@@ -59,6 +59,10 @@ structure freely; the five values it moves are not yours to hand-edit.
 request for the two prebuilt platforms, and weekly for the two that compile from source. All four runner classes are
 free for public repositories.
 
+The weekly run also checks that the formula still points at the newest Navigator release. Every other job proves the
+formula it finds installs; none of them notices when the bump stops running, which is how `brew install` came to serve
+a version two releases behind for three days.
+
 ## Licence
 
 Navigator is licensed `AGPL-3.0-only`, and this tap is offered under the same terms — see [`LICENSE`](LICENSE). The

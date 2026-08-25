@@ -333,3 +333,66 @@ jobs:
           brew install --formula "${TAP}/navigator"
           brew test "${TAP}/navigator"
           navigator --version
+
+  # THE FORMULA FOLLOWING RELEASES IS ITSELF WORTH A TEST. Every job above
+  # proves the formula it finds is installable; none of them asks whether it is
+  # the CURRENT one. That gap is not hypothetical — the bump broke, two releases
+  # went unpublished, and `brew install` served a version two behind for three
+  # days. A failing bump is loud in the Actions tab and silent everywhere a
+  # reader actually looks, so nothing reported it.
+  #
+  # Schedule and dispatch only, matching the `source` job. Whether the formula
+  # is current is a property of the world rather than of a diff: gating pull
+  # requests on it would fail somebody's unrelated change for a reason its
+  # author cannot fix, and would keep failing until a release was published.
+  current:
+    name: check the formula still follows releases
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: compare the formula against the newest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          formula="$(sed -n 's/^[[:space:]]*version "\(.*\)"$/\1/p' Formula/navigator.rb)"
+          if [ -z "${formula}" ]; then
+              echo "::error::Formula/navigator.rb has no version line"
+              exit 1
+          fi
+
+          # Read the source repository off the formula's own URLs rather than
+          # writing it down a third time. A literal is what broke the bump: it
+          # went on naming a previous owner after the repository moved, and
+          # nothing pointed at the two having diverged.
+          repo="$(sed -n 's|^[[:space:]]*url "https://github.com/\([^/]*/[^/]*\)/.*|\1|p' \
+              Formula/navigator.rb | sort -u)"
+          if [ "$(printf '%s\n' "${repo}" | grep -c .)" -ne 1 ]; then
+              echo "::error::the formula's url lines name more than one repository: ${repo}"
+              exit 1
+          fi
+
+          # The newest release of EITHER shape. This formula holds one version
+          # and follows whichever release is newest, so asking `releases/latest`
+          # would skip hotfix prereleases and call the formula current while
+          # `brew` served something older. `/releases` is newest-first.
+          #
+          # The same shape `bump.sh` and `bump.yml` accept, written with `[.]`
+          # rather than `\.` because this is a jq string literal, where a
+          # backslash would have to be doubled to survive into the regex.
+          shape='^[0-9]{2}[.](0|[1-9][0-9]?)[.](0|[1-9][0-9]?)(-hotfix[.](0|[1-9][0-9]*))?$'
+          latest="$(gh api "repos/${repo}/releases" \
+              --jq "[.[] | select(.tag_name | test(\"${shape}\"))] | .[0].tag_name // \"\"")"
+          if [ -z "${latest}" ]; then
+              echo "::error::${repo} has published no release of a recognised shape"
+              exit 1
+          fi
+
+          echo "formula points at ${formula}; newest ${repo} release is ${latest}"
+          if [ "${formula}" != "${latest}" ]; then
+              echo "::error::the formula points at ${formula} but ${repo} has published ${latest} — brew install is serving a stale version. Fix the bump workflow if it is failing, then re-run it for ${latest}."
+              exit 1
+          fi
+          echo "the formula is current"
