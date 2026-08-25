@@ -65,6 +65,16 @@ jobs:
       # `brew tap` to run — issuing one against the workspace path collides with
       # the registration it already made ("remote mismatch") and fails the job.
       #
+      # It registers it under the name Homebrew gives an `OWNER/homebrew-NAME`
+      # repository, which is `OWNER/NAME`. THAT NAME IS NOT A CONSTANT: it
+      # follows whoever owns this repository, so it is derived below from
+      # `GITHUB_REPOSITORY` — the same value `setup-homebrew` reads — rather
+      # than written down. A literal here is only ever correct until the next
+      # transfer: the last one left this name pointing at a previous owner,
+      # every job asked `brew` for a tap nobody had registered, and the formula
+      # stopped following releases for three days with no diff to explain it,
+      # because the tree never changed.
+      #
       # What that leaves worth checking is which tree the qualified name now
       # resolves to. If the tap pointed at the GitHub remote rather than this
       # checkout, every job below would silently test `main` instead of the
@@ -73,8 +83,24 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-source-code/navigator)"
-          echo "tap resolves to ${tap_path}"
+          owner="${GITHUB_REPOSITORY%%/*}"
+          name="${GITHUB_REPOSITORY#*/}"
+          tap="${owner}/${name#homebrew-}"
+          # Every later step in this job addresses the formula through this
+          # name, so it is derived once here rather than in each of them.
+          echo "TAP=${tap}" >> "${GITHUB_ENV}"
+
+          tap_path="$(brew --repository "${tap}")"
+          echo "tap ${tap} resolves to ${tap_path}"
+          # `brew --repository` composes a path and never looks at it, so a tap
+          # nobody registered still yields a plausible string. Say that here:
+          # without this the job dies on the next line with a bare `cd: No such
+          # file or directory`, which names the symptom and not the cause, and
+          # is most of why the last such break took three days to read.
+          if [ ! -d "${tap_path}" ]; then
+              echo "::error::no tap named ${tap} is registered — ${tap_path} does not exist. setup-homebrew registers this checkout under the name derived from ${GITHUB_REPOSITORY}, so this job and that action disagree about what the tap is called"
+              exit 1
+          fi
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
           if [ "${resolved}" != "${workspace}" ]; then
@@ -127,7 +153,7 @@ jobs:
       # the step below and `bump.sh` both make more strictly, and an OCI tag
       # rule that applies to core or bottled formulae, which this is neither.
       - name: brew audit
-        run: brew audit --online --except=version --formula neon-law-source-code/navigator/navigator
+        run: brew audit --online --except=version --formula "${TAP}/navigator"
 
       # The one thing `--except=version` gave up that could actually bite. The
       # formula must SAY its version, because Homebrew's fallback is to infer
@@ -173,6 +199,16 @@ jobs:
       # `brew tap` to run — issuing one against the workspace path collides with
       # the registration it already made ("remote mismatch") and fails the job.
       #
+      # It registers it under the name Homebrew gives an `OWNER/homebrew-NAME`
+      # repository, which is `OWNER/NAME`. THAT NAME IS NOT A CONSTANT: it
+      # follows whoever owns this repository, so it is derived below from
+      # `GITHUB_REPOSITORY` — the same value `setup-homebrew` reads — rather
+      # than written down. A literal here is only ever correct until the next
+      # transfer: the last one left this name pointing at a previous owner,
+      # every job asked `brew` for a tap nobody had registered, and the formula
+      # stopped following releases for three days with no diff to explain it,
+      # because the tree never changed.
+      #
       # What that leaves worth checking is which tree the qualified name now
       # resolves to. If the tap pointed at the GitHub remote rather than this
       # checkout, every job below would silently test `main` instead of the
@@ -181,8 +217,24 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-source-code/navigator)"
-          echo "tap resolves to ${tap_path}"
+          owner="${GITHUB_REPOSITORY%%/*}"
+          name="${GITHUB_REPOSITORY#*/}"
+          tap="${owner}/${name#homebrew-}"
+          # Every later step in this job addresses the formula through this
+          # name, so it is derived once here rather than in each of them.
+          echo "TAP=${tap}" >> "${GITHUB_ENV}"
+
+          tap_path="$(brew --repository "${tap}")"
+          echo "tap ${tap} resolves to ${tap_path}"
+          # `brew --repository` composes a path and never looks at it, so a tap
+          # nobody registered still yields a plausible string. Say that here:
+          # without this the job dies on the next line with a bare `cd: No such
+          # file or directory`, which names the symptom and not the cause, and
+          # is most of why the last such break took three days to read.
+          if [ ! -d "${tap_path}" ]; then
+              echo "::error::no tap named ${tap} is registered — ${tap_path} does not exist. setup-homebrew registers this checkout under the name derived from ${GITHUB_REPOSITORY}, so this job and that action disagree about what the tap is called"
+              exit 1
+          fi
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
           if [ "${resolved}" != "${workspace}" ]; then
@@ -192,8 +244,8 @@ jobs:
       - name: install and test
         run: |
           set -euo pipefail
-          brew install --formula neon-law-source-code/navigator/navigator
-          brew test neon-law-source-code/navigator/navigator
+          brew install --formula "${TAP}/navigator"
+          brew test "${TAP}/navigator"
           navigator --version
 
   source:
@@ -233,6 +285,16 @@ jobs:
       # `brew tap` to run — issuing one against the workspace path collides with
       # the registration it already made ("remote mismatch") and fails the job.
       #
+      # It registers it under the name Homebrew gives an `OWNER/homebrew-NAME`
+      # repository, which is `OWNER/NAME`. THAT NAME IS NOT A CONSTANT: it
+      # follows whoever owns this repository, so it is derived below from
+      # `GITHUB_REPOSITORY` — the same value `setup-homebrew` reads — rather
+      # than written down. A literal here is only ever correct until the next
+      # transfer: the last one left this name pointing at a previous owner,
+      # every job asked `brew` for a tap nobody had registered, and the formula
+      # stopped following releases for three days with no diff to explain it,
+      # because the tree never changed.
+      #
       # What that leaves worth checking is which tree the qualified name now
       # resolves to. If the tap pointed at the GitHub remote rather than this
       # checkout, every job below would silently test `main` instead of the
@@ -241,8 +303,24 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-source-code/navigator)"
-          echo "tap resolves to ${tap_path}"
+          owner="${GITHUB_REPOSITORY%%/*}"
+          name="${GITHUB_REPOSITORY#*/}"
+          tap="${owner}/${name#homebrew-}"
+          # Every later step in this job addresses the formula through this
+          # name, so it is derived once here rather than in each of them.
+          echo "TAP=${tap}" >> "${GITHUB_ENV}"
+
+          tap_path="$(brew --repository "${tap}")"
+          echo "tap ${tap} resolves to ${tap_path}"
+          # `brew --repository` composes a path and never looks at it, so a tap
+          # nobody registered still yields a plausible string. Say that here:
+          # without this the job dies on the next line with a bare `cd: No such
+          # file or directory`, which names the symptom and not the cause, and
+          # is most of why the last such break took three days to read.
+          if [ ! -d "${tap_path}" ]; then
+              echo "::error::no tap named ${tap} is registered — ${tap_path} does not exist. setup-homebrew registers this checkout under the name derived from ${GITHUB_REPOSITORY}, so this job and that action disagree about what the tap is called"
+              exit 1
+          fi
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
           if [ "${resolved}" != "${workspace}" ]; then
@@ -252,6 +330,6 @@ jobs:
       - name: build, install, and test
         run: |
           set -euo pipefail
-          brew install --formula neon-law-source-code/navigator/navigator
-          brew test neon-law-source-code/navigator/navigator
+          brew install --formula "${TAP}/navigator"
+          brew test "${TAP}/navigator"
           navigator --version
