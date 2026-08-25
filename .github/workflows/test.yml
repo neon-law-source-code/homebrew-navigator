@@ -73,7 +73,7 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-foundation/navigator)"
+          tap_path="$(brew --repository neon-law-source-code/navigator)"
           echo "tap resolves to ${tap_path}"
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
@@ -101,7 +101,7 @@ jobs:
       # entitled to ignore, and a gate that fails for reasons you intend to keep
       # is a gate people learn to skip.
       - name: brew audit
-        run: brew audit --online --formula neon-law-foundation/navigator/navigator
+        run: brew audit --online --formula neon-law-source-code/navigator/navigator
 
   prebuilt:
     name: install on ${{ matrix.label }}
@@ -141,7 +141,7 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-foundation/navigator)"
+          tap_path="$(brew --repository neon-law-source-code/navigator)"
           echo "tap resolves to ${tap_path}"
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
@@ -152,8 +152,8 @@ jobs:
       - name: install and test
         run: |
           set -euo pipefail
-          brew install --formula neon-law-foundation/navigator/navigator
-          brew test neon-law-foundation/navigator/navigator
+          brew install --formula neon-law-source-code/navigator/navigator
+          brew test neon-law-source-code/navigator/navigator
           navigator --version
 
   source:
@@ -201,7 +201,7 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-foundation/navigator)"
+          tap_path="$(brew --repository neon-law-source-code/navigator)"
           echo "tap resolves to ${tap_path}"
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
@@ -212,6 +212,6 @@ jobs:
       - name: build, install, and test
         run: |
           set -euo pipefail
-          brew install --formula neon-law-foundation/navigator/navigator
-          brew test neon-law-foundation/navigator/navigator
+          brew install --formula neon-law-source-code/navigator/navigator
+          brew test neon-law-source-code/navigator/navigator
           navigator --version

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Point `Formula/navigator.rb` at a `YY.M.D` release of
-# `neon-law-foundation/navigator`.
+# `neon-law-source-code/navigator`.
 #
 #   scripts/bump.sh 26.8.17
 #   scripts/bump.sh 26.8.20-hotfix.4
@@ -40,7 +40,7 @@
 # formula with a stale digest.
 set -euo pipefail
 
-readonly REPO="neon-law-foundation/navigator"
+readonly REPO="neon-law-source-code/navigator"
 FORMULA="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Formula/navigator.rb"
 readonly FORMULA
 

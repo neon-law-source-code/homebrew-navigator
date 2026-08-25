@@ -3,7 +3,7 @@ name: bump
 # Point the formula at a new Navigator release.
 #
 # TWO TRIGGERS, ONE PATH. `repository_dispatch` is the automatic one:
-# `neon-law-foundation/navigator`'s `deploy.yml` fires it after the CLI
+# `neon-law-source-code/navigator`'s `deploy.yml` fires it after the CLI
 # archives are attached to the GitHub Release, so a `brew upgrade` reaches the
 # new version minutes after the tag lands with nobody in the loop.
 # `workflow_dispatch` is the repair handle — re-run any tag by hand when a bump
@@ -118,7 +118,7 @@ jobs:
       - name: confirm the tap is this checkout
         run: |
           set -euo pipefail
-          tap_path="$(brew --repository neon-law-foundation/navigator)"
+          tap_path="$(brew --repository neon-law-source-code/navigator)"
           echo "tap resolves to ${tap_path}"
           resolved="$(cd "${tap_path}" && pwd -P)"
           workspace="$(cd "${GITHUB_WORKSPACE}" && pwd -P)"
@@ -129,8 +129,8 @@ jobs:
       - name: install and test the formula on this runner
         run: |
           set -euo pipefail
-          brew install --formula neon-law-foundation/navigator/navigator
-          brew test neon-law-foundation/navigator/navigator
+          brew install --formula neon-law-source-code/navigator/navigator
+          brew test neon-law-source-code/navigator/navigator
 
       # THIS PUSHES STRAIGHT TO `main`, and `main` is deliberately unprotected.
       # A tap holds one mechanical file whose every change is a formula bump
