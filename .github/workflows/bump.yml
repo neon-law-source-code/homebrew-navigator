@@ -126,9 +126,24 @@ jobs:
               echo "::error::the tap resolves to ${resolved}, not this checkout (${workspace}) — CI would be testing a different tree than the one under review"
               exit 1
           fi
-      - name: install and test the formula on this runner
+      # AUDIT WHAT IS ABOUT TO BE PUSHED, not just what installs. `test.yml`
+      # audits the formula on every push and pull request, but it never sees a
+      # bump: this job pushes with `GITHUB_TOKEN`, and GitHub does not start
+      # workflows for pushes made with it. No `test.yml` run exists for any
+      # bump commit, so until now the publishing path had no audit at all and a
+      # formula could reach `main` in a state the gate would have refused. That
+      # is how one did — `brew audit` rejects an explicit `version` on an
+      # ordinary release, the first of which reached this tap at `26.8.24`, and
+      # the failure surfaced days later on an unrelated pull request.
+      #
+      # Same flags as `test.yml`, deliberately. If the two ever disagree, a
+      # bump passes here and `main` is red the moment anyone opens a pull
+      # request against it — which is the failure this step exists to prevent,
+      # reintroduced one level up.
+      - name: audit, install, and test the formula on this runner
         run: |
           set -euo pipefail
+          brew audit --online --except=version --formula neon-law-source-code/navigator/navigator
           brew install --formula neon-law-source-code/navigator/navigator
           brew test neon-law-source-code/navigator/navigator
 
