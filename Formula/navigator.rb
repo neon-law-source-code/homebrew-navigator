@@ -9,7 +9,7 @@
 # the script's. Navigator publishes ordinary `YY.M.D` releases and same-day
 # `YY.M.D-hotfix.N` prereleases, and this formula follows whichever is newest,
 # because it holds ONE version and every `brew install` resolves to it. But
-# Homebrew's comparator is not semver — it ranks `26.8.27` ABOVE
+# Homebrew's comparator is not semver — it ranks `26.8.28` ABOVE
 # `26.8.20` — so a bump from a hotfix to its own base version would read as a
 # downgrade and `brew upgrade` would refuse to move. `bump.sh` detects that with
 # Homebrew's own comparator and increments `version_scheme`, which outranks any
@@ -32,7 +32,7 @@
 class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
   homepage "https://github.com/neon-law-source-code/navigator"
-  version "26.8.27"
+  version "26.8.28"
   # Navigator is AGPL-3.0-only. `-only` and not `-or-later`: the workspace
   # manifest declares exactly that, and a formula that widened it would offer
   # recipients a grant the Foundation did not make.
@@ -41,16 +41,16 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.27/navigator-26.8.27-macos.tar.gz"
-      sha256 "37fda084d33d955d08daf9ac220679863abca5f3284e2704e74574a5b0fc9ceb"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.28/navigator-26.8.28-macos.tar.gz"
+      sha256 "4d30698f42371f183f2a347cde4d153599384e4b020697b0ed28462a8d8352a7"
     end
 
     on_intel do
       # No prebuilt x86_64 archive exists: `macos-latest` is Apple silicon, and
       # a second full release compile on the slowest runner class is not bought.
       # Compile the source tag instead.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.27.tar.gz"
-      sha256 "e739a6397760b2e09b1f1f7292b26c5dabba551673549d3ce84fe83e7d00975c"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.28.tar.gz"
+      sha256 "65ecd2e1834c599efa8a77585bc7c7f64f10b3e5a7c66c30c098b08adb274ccf"
 
       depends_on "rust" => :build
     end
@@ -58,14 +58,14 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.27/navigator-26.8.27-linux.tar.gz"
-      sha256 "56ef7a9598453eb7301c49914f7215f6572fc0627a3259bf9fcbbc03ecef3deb"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.8.28/navigator-26.8.28-linux.tar.gz"
+      sha256 "9dd1ad0f0ba870ce693863b1138d6b2f25e18f9f65cd8b764cdf1f3e043ac57f"
     end
 
     on_arm do
       # Same reasoning as Intel macOS: the release publishes x86_64 Linux only.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.27.tar.gz"
-      sha256 "e739a6397760b2e09b1f1f7292b26c5dabba551673549d3ce84fe83e7d00975c"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.8.28.tar.gz"
+      sha256 "65ecd2e1834c599efa8a77585bc7c7f64f10b3e5a7c66c30c098b08adb274ccf"
 
       depends_on "rust" => :build
     end
