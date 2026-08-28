@@ -213,6 +213,17 @@ digests="$(grep -c '^[[:space:]]*sha256 "' "${workdir}/navigator.rb")"
 while read -r line; do
     printf '%s' "${line}" | grep -q "${TAG}" ||
         fail "a url line does not name ${TAG}: ${line}"
+    # And the same repository the digests above were taken from. These are two
+    # independent literals — the downloads are composed from `REPO`, the formula
+    # carries its own URLs, and this script only ever substitutes the VERSION —
+    # so a repository that moves gets corrected in one and missed in the other.
+    # Nothing fails when that happens: GitHub answers the old path with a 301
+    # and `curl --location` follows it, so the digests still match and the
+    # formula goes on telling readers to download from an owner it left. It
+    # stays wrong until the redirect lapses, and then every install breaks at
+    # once.
+    printf '%s' "${line}" | grep -q "github\.com/${REPO}/" ||
+        fail "a url line does not name ${REPO}: ${line}"
 done < <(grep '^[[:space:]]*url "' "${workdir}/navigator.rb")
 
 # The placeholder the formula ships with before its first bump, and the shape
