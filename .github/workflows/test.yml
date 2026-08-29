@@ -26,6 +26,20 @@ on:
     # releases have all landed and been bumped.
     - cron: "0 14 * * 1"
   workflow_dispatch:
+  # Whenever a bump finishes, so the `current` job below runs when its answer
+  # can actually have changed. A bump is the only thing that moves the formula,
+  # so the weekly cron was checking an unchanged answer six days out of seven
+  # and missing a genuine staleness for up to seven days on the first.
+  #
+  # `completed` rather than `success`, and this is the point rather than an
+  # oversight: a bump that FAILED is precisely when the formula is stale, so
+  # the run worth checking is the one that did not work. Filtering to success
+  # would skip every case this job exists to catch.
+  #
+  # Only `current` acts on this trigger — see the guards on the jobs below.
+  workflow_run:
+    workflows: [bump]
+    types: [completed]
 
 permissions:
   contents: read
@@ -47,6 +61,14 @@ permissions:
 jobs:
   style:
     name: audit the formula
+    # Not on `workflow_run`. That trigger exists for `current` alone, and
+    # `bump.yml` already runs this same audit against the formula it is about
+    # to push — with the same flags, deliberately — so repeating it here after
+    # the push would re-prove what the bump just proved. Running the whole
+    # install matrix on every bump is a defensible thing to want, but it is a
+    # separate call with its own runner-time cost and should be made on its own
+    # evidence rather than arriving as a side effect of this trigger.
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -171,6 +193,9 @@ jobs:
 
   prebuilt:
     name: install on ${{ matrix.label }}
+    # Not on `workflow_run`, for the reason given on `style` above: `bump.yml`
+    # installs and tests the formula on its own runner before it pushes.
+    if: github.event_name != 'workflow_run'
     strategy:
       fail-fast: false
       matrix:
@@ -341,13 +366,23 @@ jobs:
   # days. A failing bump is loud in the Actions tab and silent everywhere a
   # reader actually looks, so nothing reported it.
   #
-  # Schedule and dispatch only, matching the `source` job. Whether the formula
-  # is current is a property of the world rather than of a diff: gating pull
-  # requests on it would fail somebody's unrelated change for a reason its
-  # author cannot fix, and would keep failing until a release was published.
+  # Not on pull requests. Whether the formula is current is a property of the
+  # world rather than of a diff: gating pull requests on it would fail
+  # somebody's unrelated change for a reason its author cannot fix, and would
+  # keep failing until a release was published.
+  #
+  # It DOES run after every bump, which is the trigger that matters, because a
+  # bump is the only thing that changes the answer. The weekly cron is kept as
+  # the backstop for the case no bump-completion event can cover: a release
+  # that never dispatched to this tap at all, where there is no bump run to
+  # finish and therefore nothing to hang a `workflow_run` on. Measured cost of
+  # a firing is about six seconds, so the cadence is not what constrains this.
   current:
     name: check the formula still follows releases
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
