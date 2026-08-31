@@ -65,9 +65,15 @@ a version two releases behind for three days.
 
 ## Licence
 
-Navigator is licensed `AGPL-3.0-only`, and this tap is offered under the same terms — see [`LICENSE`](LICENSE). The
-formula installs that text alongside the binary, because § 4 conditions the right to convey a copy on giving the
-recipient the licence, and whoever runs `brew install` holds the binary rather than this repository.
+Navigator is **source-available, not open source**, under the [Business Source License 1.1](LICENSE): `BUSL-1.1`. This
+tap is offered under the same terms. Read it, build it, fork it, redistribute it, and make any non-production use of
+it. **Production use needs a commercial licence** from Shook Law PLLC. Four years after a version is published, that
+version converts to `AGPL-3.0-only` and the restriction ends for it permanently.
 
-The NEON LAW marks are reserved. Outside contributions are currently closed; reach the maintainers at
-<contact@neonlaw.org>.
+The formula installs the licence text alongside the binary, because BUSL requires it to be displayed on every copy of
+the Licensed Work, and whoever runs `brew install` holds the binary rather than this repository.
+
+Copyright (C) 2026 **Shook Law PLLC**.
+
+The NEON LAW marks are reserved — BUSL grants rights in copyright, not in trademarks, so nothing in `LICENSE` reaches
+the name. Outside contributions are currently closed; reach the maintainers at <contact@neonlaw.org>.

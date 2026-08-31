@@ -33,10 +33,13 @@ class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
   homepage "https://github.com/neon-law-source-code/navigator"
   version "26.8.28"
-  # Navigator is AGPL-3.0-only. `-only` and not `-or-later`: the workspace
-  # manifest declares exactly that, and a formula that widened it would offer
-  # recipients a grant the Foundation did not make.
-  license "AGPL-3.0-only"
+  # Navigator is BUSL-1.1: source-available, not open source. The workspace
+  # manifest declares exactly that, and a formula that named a permissive
+  # licence would offer recipients a grant Shook Law PLLC did not make. Read,
+  # build, fork, and redistribute it freely; production use needs a commercial
+  # licence until the version's Change Date, four years after it is published,
+  # converts it to AGPL-3.0-only.
+  license "BUSL-1.1"
   version_scheme 1
 
   on_macos do
@@ -89,11 +92,12 @@ class Navigator < Formula
     end
 
     # LICENSE travels with the install, exactly as it travels with the archive.
-    # AGPL-3.0 § 4 conditions the right to convey a copy on giving recipients
-    # the licence text, and a recipient holds the binary rather than the
-    # repository — that is the whole point of shipping one — so this is where
-    # the obligation is met or not at all. Both acquisition paths carry it at
-    # their root.
+    # BUSL requires the licence to be conspicuously displayed on every copy of
+    # the Licensed Work, and it is the licence that tells the holder what they
+    # may do — non-production use now, AGPL-3.0-only after the Change Date. A
+    # recipient holds the binary rather than the repository — that is the whole
+    # point of shipping one — so this is where the obligation is met or not at
+    # all. Both acquisition paths carry it at their root.
     prefix.install "LICENSE"
   end
 
