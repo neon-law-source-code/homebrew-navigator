@@ -1,0 +1,37 @@
+Neon Law Navigator Homebrew Tap — NOTICE
+
+Copyright (C) 2026 Shook Law PLLC
+
+SPDX-License-Identifier: BUSL-1.1
+
+This repository is source-available software, not open source.  You may read,
+copy, modify, create derivative works from, and redistribute it, and you may
+make any non-production use of it.  Production use requires a commercial licence
+from Shook Law PLLC.  Four years after a given version is published, that version
+converts to the GNU Affero General Public License, version 3 only, and the
+restriction ends for it permanently.
+
+This program is distributed WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
+or TITLE.  See LICENSE for the operative disclaimer.
+
+LICENSE holds that licence and nothing else — the Business Source License 1.1,
+its parameters block filled in and its terms otherwise unaltered.  It is the
+instrument; this file is the copyright holder's account of how it applies, and
+it neither widens nor narrows the grant.
+
+WHO HOLDS THIS.  Copyright belongs to Shook Law PLLC, the law firm that operates
+Neon Law Navigator under the NEON LAW mark, and it is the sole Licensor.
+
+WHAT THIS REPOSITORY IS.  A Homebrew tap: one formula that installs the
+`navigator` binary from its published release archive.  The Licensed Work here is
+the tap — the formula, its workflows, and its bump script.  The binary the
+formula installs is Neon Law Navigator, licensed under its own LICENSE, which
+travels with the install.
+
+TRADEMARKS.  The licence grants rights in copyright, not in trademarks.  NEON
+LAW is a registered trademark, U.S. Reg. No. 6,325,650, owned by Shook Law PLLC.
+A copyright licence does not reach a mark.
+
+COMMERCIAL LICENCES.  Production use needs one, and only Shook Law PLLC can
+grant it.  Write to contact@neonlaw.org.
