@@ -75,8 +75,17 @@ be displayed on every copy of the Licensed Work, and whoever runs `brew install`
 repository. Both files sit in the keg prefix, and `navigator --license` prints them itself.
 
 This tap's own terms are its [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) — the instrument, and the Firm's account of
-how it applies. `NOTICE` is where the Licensed Work here is identified as the tap rather than the binary, and where
-installing Navigator through this tap is stated not to be production use of the tap.
+how it applies. `NOTICE` is where the Licensed Work here is identified as the tap rather than the binary.
+
+**What you may run without a commercial licence is pinned in `LICENSE` itself**, in the Additional Use Grant, whose
+first paragraph is shared word-for-word with Navigator and Navigator UX. You may operate the Licensed Work anywhere,
+the cloud included, to evaluate, develop against, test, or demonstrate it, for so long as nothing relies on the
+result — the test is reliance, not where the software runs. **This tap adds one sentence: installing and updating
+Navigator by means of it is granted outright**, relied upon or not, which is what stops the install path we recommend
+from being the one that needs a licence.
+
+Beyond that grant, the Firm's reading of what counts as production use lives in [`NOTICE`](NOTICE), where it binds
+nobody — deliberately, because BUSL's second covenant permits only a grant that adds permission in that slot.
 
 Copyright (C) 2026 **Shook Law PLLC**.
 
