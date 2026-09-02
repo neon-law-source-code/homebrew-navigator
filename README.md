@@ -70,8 +70,13 @@ tap is offered under the same terms. Read it, build it, fork it, redistribute it
 it. **Production use needs a commercial licence** from Shook Law PLLC. Four years after a version is published, that
 version converts to `AGPL-3.0-only` and the restriction ends for it permanently.
 
-The formula installs the licence text alongside the binary, because BUSL requires it to be displayed on every copy of
-the Licensed Work, and whoever runs `brew install` holds the binary rather than this repository.
+The formula installs Navigator's own `LICENSE` and `NOTICE` alongside the binary, because BUSL requires the licence to
+be displayed on every copy of the Licensed Work, and whoever runs `brew install` holds the binary rather than this
+repository. Both files sit in the keg prefix, and `navigator --license` prints them itself.
+
+This tap's own terms are its [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) — the instrument, and the Firm's account of
+how it applies. `NOTICE` is where the Licensed Work here is identified as the tap rather than the binary, and where
+installing Navigator through this tap is stated not to be production use of the tap.
 
 Copyright (C) 2026 **Shook Law PLLC**.
 
