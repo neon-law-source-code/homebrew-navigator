@@ -6,10 +6,12 @@ SPDX-License-Identifier: BUSL-1.1
 
 This repository is source-available software, not open source.  You may read,
 copy, modify, create derivative works from, and redistribute it, and you may
-make any non-production use of it.  Production use requires a commercial licence
-from Shook Law PLLC.  Four years after a given version is published, that version
-converts to the GNU Affero General Public License, version 3 only, and the
-restriction ends for it permanently.
+make any non-production use of it.  LICENSE also grants, expressly, the one
+thing a tap exists for: obtaining, installing, and updating Navigator by means
+of it, whether or not anyone relies on the result.  Beyond that, production use
+requires a commercial licence from Shook Law PLLC.  Four years after a given
+version is published, that version converts to the GNU Affero General Public
+License, version 3 only, and the restriction ends for it permanently.
 
 This repository is distributed WITHOUT ANY WARRANTY; without even the implied
 warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
@@ -35,10 +37,24 @@ Neon Law Navigator Homebrew Tap — this repository, named rather than the binar
 it installs, because the two are licensed separately and only one of them is
 here.
 
-  Additional Use Grant is `None`, matching Navigator's.  BUSL's base grant
-  already covers non-production use, and the Additional Use Grant is the slot
-  for permitting *limited production* use on top of it.  `None` therefore is not
-  a restriction added to the licence — it is the absence of an extra permission.
+  Additional Use Grant pins the free use rather than sitting empty, and its
+  first paragraph is shared word-for-word with Navigator and Navigator UX.  It
+  grants operation of the Licensed Work anywhere, the cloud included, to
+  evaluate, develop against, test, or demonstrate it, for so long as nothing
+  relies on the result.  The test is reliance, not where the software runs.
+
+  It is written as a grant and not as a definition of "production use",
+  deliberately.  BUSL's second Covenant of Licensor permits an Additional Use
+  Grant only where it "does not impose any additional restriction on the right
+  granted in this License", and a clause defining an undefined term against the
+  licensee would risk being exactly that.  A clause that only adds permission
+  cannot.
+
+  This tap adds one sentence of its own on top: obtaining, installing, and
+  updating Navigator by means of the Licensed Work is permitted whether or not
+  anyone relies on the result.  Without it the arithmetic is absurd — the
+  Licensed Work here is the formula, every `brew install` copies and evaluates
+  it, and people rely on the tap precisely because it works.
 
   Change Date is four years from the date the Licensed Work is published.  It
   applies per version, as BUSL's terms require: each release carries its own
@@ -47,14 +63,19 @@ here.
 
   Change License is AGPL-3.0-only, matching Navigator's.
 
-WHAT "PRODUCTION USE" MEANS HERE.  BUSL does not define it, so this is the Firm's
-own reading, and for a tap it is deliberately narrow.  Installing Navigator
-through this tap is not production use of the tap: copying and evaluating the
-formula is how a tap is read at all, and a formula published to be installed is
-not one you need permission to install.  Running a modified fork of this tap as
-your own distribution channel is production use.  Whether your use of the
-`navigator` binary is production use is a separate question, answered by
-Navigator's own LICENSE and NOTICE rather than by this file.
+WHAT "PRODUCTION USE" MEANS HERE.  BUSL does not define it, and neither does
+LICENSE — for the covenant reason above.  What LICENSE does instead is grant the
+uses that matter here, so the practical question is answerable from the
+instrument: you may install Navigator through this tap, and you may operate the
+tap itself to evaluate, develop against, test, or demonstrate it.  Inside that,
+you need nothing from us, and that is where every ordinary user of this
+repository sits.
+
+Outside it, this is the Firm's reading rather than a term.  Running a modified
+fork of this tap as your own distribution channel is production use, and so is
+marketing to customers a product or service that relies on it.  Whether your use
+of the `navigator` binary is production use is a separate question, answered by
+Navigator's own LICENSE and NOTICE — which now carry the same shared paragraph.
 
 TRADEMARKS.  The licence grants rights in copyright, not in trademarks.  NEON
 LAW is a registered trademark, U.S. Reg. No. 6,325,650, owned by Shook Law PLLC.
