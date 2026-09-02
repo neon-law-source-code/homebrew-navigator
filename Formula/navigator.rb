@@ -91,14 +91,30 @@ class Navigator < Formula
       system "cargo", "install", *std_cargo_args(path: "cli")
     end
 
-    # LICENSE travels with the install, exactly as it travels with the archive.
+    # LICENSE and NOTICE travel with the install, exactly as they travel with
+    # the archive. These are Navigator's own two files, staged from whichever
+    # tree was fetched — not this tap's; the binary carries its licence, and the
+    # tap carries its own.
+    #
     # BUSL requires the licence to be conspicuously displayed on every copy of
     # the Licensed Work, and it is the licence that tells the holder what they
     # may do — non-production use now, AGPL-3.0-only after the Change Date. A
     # recipient holds the binary rather than the repository — that is the whole
     # point of shipping one — so this is where the obligation is met or not at
-    # all. Both acquisition paths carry it at their root.
+    # all.
+    #
+    # NOTICE is the other half and was being dropped here. It is the file that
+    # names the copyright holder, reserves the NEON LAW marks the licence does
+    # not reach, and says where a commercial licence comes from. `deploy.yml`
+    # stages it beside the executable in every release archive for exactly that
+    # reason, and installing only LICENSE made brew — the install path macOS
+    # users are told to use — the one route by which it never arrives.
+    #
+    # Both acquisition paths carry both files at their root: the prebuilt
+    # archives hold `navigator`, `LICENSE`, `NOTICE` and nothing else, and the
+    # source tag carries them at the tree root.
     prefix.install "LICENSE"
+    prefix.install "NOTICE"
   end
 
   test do

@@ -11,7 +11,7 @@ from Shook Law PLLC.  Four years after a given version is published, that versio
 converts to the GNU Affero General Public License, version 3 only, and the
 restriction ends for it permanently.
 
-This program is distributed WITHOUT ANY WARRANTY; without even the implied
+This repository is distributed WITHOUT ANY WARRANTY; without even the implied
 warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
 or TITLE.  See LICENSE for the operative disclaimer.
 
@@ -25,9 +25,36 @@ Neon Law Navigator under the NEON LAW mark, and it is the sole Licensor.
 
 WHAT THIS REPOSITORY IS.  A Homebrew tap: one formula that installs the
 `navigator` binary from its published release archive.  The Licensed Work here is
-the tap — the formula, its workflows, and its bump script.  The binary the
-formula installs is Neon Law Navigator, licensed under its own LICENSE, which
-travels with the install.
+the tap — everything in this repository, the formula and its workflows and its
+bump script included.  The binary the formula installs is Neon Law Navigator,
+licensed under its own LICENSE, which travels with the install beside its own
+NOTICE.
+
+WHAT THE FOUR PARAMETERS SAY.  Licensor is Shook Law PLLC.  Licensed Work is the
+Neon Law Navigator Homebrew Tap — this repository, named rather than the binary
+it installs, because the two are licensed separately and only one of them is
+here.
+
+  Additional Use Grant is `None`, matching Navigator's.  BUSL's base grant
+  already covers non-production use, and the Additional Use Grant is the slot
+  for permitting *limited production* use on top of it.  `None` therefore is not
+  a restriction added to the licence — it is the absence of an extra permission.
+
+  Change Date is four years from the date the Licensed Work is published.  It
+  applies per version, as BUSL's terms require: each release carries its own
+  four-year clock, so a version published today converts four years from today
+  whatever happens to later ones.
+
+  Change License is AGPL-3.0-only, matching Navigator's.
+
+WHAT "PRODUCTION USE" MEANS HERE.  BUSL does not define it, so this is the Firm's
+own reading, and for a tap it is deliberately narrow.  Installing Navigator
+through this tap is not production use of the tap: copying and evaluating the
+formula is how a tap is read at all, and a formula published to be installed is
+not one you need permission to install.  Running a modified fork of this tap as
+your own distribution channel is production use.  Whether your use of the
+`navigator` binary is production use is a separate question, answered by
+Navigator's own LICENSE and NOTICE rather than by this file.
 
 TRADEMARKS.  The licence grants rights in copyright, not in trademarks.  NEON
 LAW is a registered trademark, U.S. Reg. No. 6,325,650, owned by Shook Law PLLC.
