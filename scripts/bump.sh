@@ -5,6 +5,7 @@
 #
 #   scripts/bump.sh 26.8.17
 #   scripts/bump.sh 26.8.20-hotfix.4
+#   scripts/bump.sh 26.9.4-rc.1
 #
 # Five values move: the version, and the sha256 of each of the three artifacts
 # a Navigator release makes available (the macOS archive, the Linux archive,
@@ -12,12 +13,20 @@
 # digest appears twice, once per source-building platform. A sixth may move —
 # `version_scheme` — for the reason below.
 #
-# BOTH RELEASE SHAPES ARE ACCEPTED: an ordinary `YY.M.D` and a same-day
-# `YY.M.D-hotfix.N`. Navigator publishes archives for both, and this formula
-# holds exactly one version, so the version it holds must be the newest build
-# that exists rather than the newest of a particular shape. Refusing hotfixes is
-# what left `brew install` serving a 404 for days while three ordinary releases
-# in a row failed their end-to-end gate.
+# EVERY SHAPE NAVIGATOR PUBLISHES IS ACCEPTED: an ordinary `YY.M.D`, a same-day
+# `YY.M.D-hotfix.N`, and a `YY.M.D-rc.N` release candidate. Navigator publishes
+# the same three archives for all three, and this formula holds exactly one
+# version, so the version it holds must be the newest build that exists rather
+# than the newest of a particular shape. Refusing hotfixes is what left `brew
+# install` serving a 404 for days while three ordinary releases in a row failed
+# their end-to-end gate, and refusing release candidates is what failed the bump
+# for `26.8.30-rc.1` and again for `26.9.4-rc.1`.
+#
+# A RELEASE CANDIDATE IS A PUBLISHED BUILD LIKE ANY OTHER. It cleared the same
+# KIND gate, it carries the same three artifacts, and it is the newest thing a
+# reader can install. What "candidate" buys is a flagged GitHub Release, which
+# keeps it off the front-page download; `brew` resolves one version and needs
+# that version to be the newest good build, so it follows this one too.
 #
 # WHICH IS WHY `version_scheme` MOVES. Homebrew's comparator is not semver: it
 # orders `26.8.20-hotfix.4` ABOVE `26.8.20`, the reverse of the semver §11.3
@@ -28,6 +37,14 @@
 # any lower-scheme keg regardless of version), and this script increments it
 # whenever the new tag does not sort strictly above the outgoing one. Every bump
 # is therefore an upgrade, whatever the shape of either tag.
+#
+# A RELEASE CANDIDATE NEEDS NO SUCH RESCUE, and that is worth saying because it
+# is the reason `-rc.N` costs nothing to follow. `rc` is one of the four tokens
+# Homebrew's comparator knows as a prerelease, so it ranks `26.9.4-rc.1` BELOW
+# `26.9.4` and above `26.9.3` — semver's own order. `hotfix` is not one of them;
+# it is an ordinary string token, which is the whole reason the scheme has to
+# move for those. The check below asks `brew` either way rather than reasoning
+# from that, so an rc simply never trips it.
 #
 # THE DIGESTS ARE COMPUTED FROM THE BYTES, NEVER COPIED FROM A RELEASE PAGE.
 # A sha256 in a formula is the only thing standing between a reader and a
@@ -52,13 +69,13 @@ readonly TAG="$1"
 
 # The same shape `deploy.yml`'s `release-version` job validates, character for
 # character: two-digit year, unpadded month and day, and an OPTIONAL unpadded
-# `-hotfix.N` prerelease. A tag of any other shape names no release, so
-# composing URLs from it would only produce four 404s and a confusing failure
+# `-hotfix.N` or `-rc.N` prerelease. A tag of any other shape names no release,
+# so composing URLs from it would only produce four 404s and a confusing failure
 # three steps later. Keeping this identical to the publisher's regex is what
 # makes "the tag exists" and "this script accepts it" the same question.
 if ! printf '%s' "${TAG}" |
-    grep -Eq '^[0-9]{2}\.(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)(-hotfix\.(0|[1-9][0-9]*))?$'; then
-    echo "bump: '${TAG}' is not a YY.M.D or YY.M.D-hotfix.N release version" >&2
+    grep -Eq '^[0-9]{2}\.(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)(-(hotfix|rc)\.(0|[1-9][0-9]*))?$'; then
+    echo "bump: '${TAG}' is not a YY.M.D, YY.M.D-hotfix.N, or YY.M.D-rc.N release version" >&2
     exit 2
 fi
 
@@ -123,11 +140,26 @@ if [[ "${old}" != "${TAG}" ]]; then
     fi
 fi
 
-# Every occurrence of the old version: the `version` line and both halves of
-# each release-asset URL. Dots are escaped so `26.8.17` cannot also match
-# `26X8X17`.
+# Every occurrence of the old version ON THE LINES THAT CARRY ONE: the `version`
+# line and both halves of each release-asset URL. Dots are escaped so `26.8.17`
+# cannot also match `26X8X17`.
+#
+# THE ADDRESSES ARE LOAD-BEARING, and a file-wide `s///g` is what taught that.
+# The formula's header comment explains `version_scheme` by naming the pair that
+# needs it — a hotfix and its own base version — and an unaddressed substitution
+# rewrote that prose on every bump, because the example WAS the formula's
+# outgoing version once. Several bumps later the comment claimed Homebrew ranks
+# `26.9.2` above `26.8.20`: still true, and no longer an explanation of
+# anything. Nothing failed; the file just stopped saying what it meant.
+#
+# Two `-e` addresses rather than one alternation: BSD `sed` has no `\|` in a
+# basic regular expression, and this script is run by hand on macOS as often as
+# it is run by the workflow on Linux.
 escaped="$(printf '%s' "${old}" | sed 's/\./\\./g')"
-sed "s/${escaped}/${TAG}/g" "${FORMULA}" > "${workdir}/versioned.rb"
+sed \
+    -e "/^[[:space:]]*version \"/ s/${escaped}/${TAG}/g" \
+    -e "/^[[:space:]]*url \"/ s/${escaped}/${TAG}/g" \
+    "${FORMULA}" > "${workdir}/versioned.rb"
 
 # Write the scheme back. Patch the line if the formula already declares one,
 # otherwise insert it after `license` — which is where Homebrew's
@@ -172,18 +204,22 @@ awk \
 # checksum mismatch on the USER's machine, not here.
 fail() { echo "bump: $1" >&2; exit 1; }
 
-# No leftover of the outgoing version anywhere in the file.
+# No leftover of the outgoing version on any line that carries one. Scoped to
+# the same `version` and `url` lines the substitution addressed: prose elsewhere
+# in the file is allowed to name an old release, and after the fix above it
+# keeps doing so on purpose.
 #
 # Checked against a copy with every occurrence of the NEW tag stripped out,
-# because an ordinary version is a prefix of its own hotfix: bumping `26.8.20`
-# to `26.8.20-hotfix.4` writes a correct formula in which a bare `grep 26.8.20`
-# matches on every patched line. Stripping the new tag first makes the question
-# the one actually worth asking — is any `26.8.20` left that is not part of a
-# `26.8.20-hotfix.4`?
+# because an ordinary version is a prefix of both its own hotfix and its own
+# release candidate: bumping `26.8.20` to `26.8.20-hotfix.4` writes a correct
+# formula in which a bare `grep 26.8.20` matches on every patched line.
+# Stripping the new tag first makes the question the one actually worth asking —
+# is any `26.8.20` left that is not part of a `26.8.20-hotfix.4`?
 escaped_tag="$(printf '%s' "${TAG}" | sed 's/\./\\./g')"
 if [[ "${old}" != "${TAG}" ]] &&
-    sed "s/${escaped_tag}//g" "${workdir}/navigator.rb" | grep -q "${escaped}"; then
-    fail "the previous version ${old} still appears after the patch"
+    grep -E '^[[:space:]]*(version|url) "' "${workdir}/navigator.rb" |
+        sed "s/${escaped_tag}//g" | grep -q "${escaped}"; then
+    fail "the previous version ${old} still appears on a version or url line after the patch"
 fi
 
 grep -q "^[[:space:]]*version \"${TAG}\"$" "${workdir}/navigator.rb" ||

@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Navigator release tag to point the formula at (YY.M.D or YY.M.D-hotfix.N)"
+        description: "Navigator release tag to point the formula at (YY.M.D, YY.M.D-hotfix.N, or YY.M.D-rc.N)"
         required: true
         type: string
 
@@ -77,14 +77,24 @@ jobs:
           # message. `bump.sh` checks this too; doing it here means a malformed
           # dispatch fails on the line that read it.
           #
-          # Both shapes Navigator publishes: an ordinary `YY.M.D` and a same-day
-          # `YY.M.D-hotfix.N`. The formula follows whichever release is newest
-          # rather than the newest of one shape — it holds a single version, so
-          # skipping hotfixes leaves `brew` on whatever ordinary release last
-          # succeeded, which is a stale formula nothing reports.
+          # Every shape Navigator publishes: an ordinary `YY.M.D`, a same-day
+          # `YY.M.D-hotfix.N`, and a `YY.M.D-rc.N` release candidate. The formula
+          # follows whichever release is newest rather than the newest of one
+          # shape — it holds a single version, so skipping a shape leaves `brew`
+          # on whatever ordinary release last succeeded, which is a stale formula
+          # nothing reports.
+          #
+          # RELEASE CANDIDATES ARE HERE BECAUSE REFUSING THEM COST MORE THAN
+          # CARRYING THEM. An rc clears the same KIND gate as any other release
+          # and attaches the same three archives, so there was never a bump this
+          # job could not perform — only one it declined, loudly, on the line
+          # below: `26.8.30-rc.1` and `26.9.4-rc.1` both failed here seconds in.
+          # A red run on a healthy release is the worst of both, because it
+          # trains a reader to ignore the one signal that says the formula has
+          # stopped following releases.
           if ! printf '%s' "${tag}" |
-              grep -Eq '^[0-9]{2}\.(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)(-hotfix\.(0|[1-9][0-9]*))?$'; then
-              echo "::error::'${tag}' is not a YY.M.D or YY.M.D-hotfix.N release version"
+              grep -Eq '^[0-9]{2}\.(0|[1-9][0-9]?)\.(0|[1-9][0-9]?)(-(hotfix|rc)\.(0|[1-9][0-9]*))?$'; then
+              echo "::error::'${tag}' is not a YY.M.D, YY.M.D-hotfix.N, or YY.M.D-rc.N release version"
               exit 1
           fi
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"

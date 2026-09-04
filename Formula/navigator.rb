@@ -6,14 +6,22 @@
 # by hand; the numbers are not.
 #
 # A sixth line, `version_scheme`, appears only once it is needed and is likewise
-# the script's. Navigator publishes ordinary `YY.M.D` releases and same-day
-# `YY.M.D-hotfix.N` prereleases, and this formula follows whichever is newest,
-# because it holds ONE version and every `brew install` resolves to it. But
-# Homebrew's comparator is not semver — it ranks `26.9.2` ABOVE
-# `26.8.20` — so a bump from a hotfix to its own base version would read as a
-# downgrade and `brew upgrade` would refuse to move. `bump.sh` detects that with
-# Homebrew's own comparator and increments `version_scheme`, which outranks any
-# lower-scheme keg regardless of version. See `scripts/bump.sh`.
+# the script's. Navigator publishes ordinary `YY.M.D` releases, same-day
+# `YY.M.D-hotfix.N` prereleases, and `YY.M.D-rc.N` release candidates, and this
+# formula follows whichever is newest, because it holds ONE version and every
+# `brew install` resolves to it. But Homebrew's comparator is not semver — it
+# ranks a `-hotfix.N` tag ABOVE the base version it patches — so a bump from a
+# hotfix to that base version would read as a downgrade and `brew upgrade` would
+# refuse to move. `bump.sh` detects that with Homebrew's own comparator and
+# increments `version_scheme`, which outranks any lower-scheme keg regardless of
+# version. A `-rc.N` tag never needs it: `rc` is a prerelease token Homebrew
+# knows, so those already sort the way semver says. See `scripts/bump.sh`.
+#
+# The version literals here are deliberately absent. `bump.sh` rewrites the
+# version on the `version` and `url` lines only, but it used to rewrite the
+# whole file, and this paragraph named a release that became the formula's own
+# outgoing version — so the substitution ate the example and left a sentence
+# that no longer explained anything.
 #
 # Two acquisition paths, because the release publishes two prebuilt
 # architectures and no more:
@@ -32,7 +40,7 @@
 class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
   homepage "https://github.com/neon-law-source-code/navigator"
-  version "26.9.2"
+  version "26.9.4-rc.1"
   # Navigator is BUSL-1.1: source-available, not open source. The workspace
   # manifest declares exactly that, and a formula that named a permissive
   # licence would offer recipients a grant Shook Law PLLC did not make. Read,
@@ -44,16 +52,16 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.2/navigator-26.9.2-macos.tar.gz"
-      sha256 "8046aa3701a33fba1d4b4211a4695f02f9bfd6e4571fb8bd7348924776b67fc6"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.4-rc.1/navigator-26.9.4-rc.1-macos.tar.gz"
+      sha256 "0d83c3c086bea9909ba471a5e2c56edce5570abbb840a8312a6734e7e3462efe"
     end
 
     on_intel do
       # No prebuilt x86_64 archive exists: `macos-latest` is Apple silicon, and
       # a second full release compile on the slowest runner class is not bought.
       # Compile the source tag instead.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.2.tar.gz"
-      sha256 "ff7e9fa684c737838efa3e08f25579ff5c4ada6cba173c93740f8750ef0a4892"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.4-rc.1.tar.gz"
+      sha256 "66461b3067781a184d705db53ddc3a5639254a1c2a89ea21d19071e85a83a27b"
 
       depends_on "rust" => :build
     end
@@ -61,14 +69,14 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.2/navigator-26.9.2-linux.tar.gz"
-      sha256 "7e012503765d69fbde48b13aa0c0f8fac36f23daae068967f27ea48589aba167"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.4-rc.1/navigator-26.9.4-rc.1-linux.tar.gz"
+      sha256 "e83eff7da22f77a67aa0020885f1c690de6061963af70f26481e6ead143109ba"
     end
 
     on_arm do
       # Same reasoning as Intel macOS: the release publishes x86_64 Linux only.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.2.tar.gz"
-      sha256 "ff7e9fa684c737838efa3e08f25579ff5c4ada6cba173c93740f8750ef0a4892"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.4-rc.1.tar.gz"
+      sha256 "66461b3067781a184d705db53ddc3a5639254a1c2a89ea21d19071e85a83a27b"
 
       depends_on "rust" => :build
     end

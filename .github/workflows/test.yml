@@ -152,20 +152,22 @@ jobs:
       # `--except=version` is that same judgement applied to one more rule, and
       # the formula's `version` line is the reason. Homebrew reads a version out
       # of the URL and calls an explicit `version` redundant when the two agree.
-      # They agree for an ordinary `YY.M.D` tag and do NOT for a
-      # `YY.M.D-hotfix.N` one. Measured with `Version.detect`, for the two
-      # shapes this tap publishes:
+      # They agree for an ordinary `YY.M.D` tag and do NOT for either prerelease
+      # shape. Measured with `Version.detect`, for the three shapes this tap
+      # follows:
       #
       #   .../download/26.8.24/navigator-26.8.24-linux.tar.gz          -> 26.8.24
       #   .../download/26.8.22-hotfix.23/navigator-...-linux.tar.gz    -> 26.8.22
+      #   .../download/26.9.4-rc.1/navigator-...-linux.tar.gz          -> 26.9.4
       #   .../archive/refs/tags/26.8.24.tar.gz                         -> 26.8.24
       #   .../archive/refs/tags/26.8.22-hotfix.23.tar.gz               -> 23
+      #   .../archive/refs/tags/26.9.4-rc.1.tar.gz                     -> 1
       #
       # So the line is REFUSED for an ordinary release and REQUIRED for a
-      # hotfix: drop it there and the formula quietly claims `26.8.22`, with no
-      # audit failure to show for it. Every bump before `26.8.24` was a hotfix,
-      # which is why this rule had never fired here and now fires on every
-      # ordinary release.
+      # prerelease: drop it there and the formula quietly claims `26.8.22`, with
+      # no audit failure to show for it. Every bump before `26.8.24` was a
+      # hotfix, which is why this rule had never fired here and now fires on
+      # every ordinary release.
       #
       # Declaring the version always is the safer half of that trade. It never
       # depends on a scanner this tap has measured getting its own releases
@@ -186,7 +188,7 @@ jobs:
         run: |
           set -euo pipefail
           if ! grep -Eq '^[[:space:]]*version "[^"]+"$' Formula/navigator.rb; then
-              echo "::error::Formula/navigator.rb declares no explicit version. Homebrew would infer one from the URL, and for a YY.M.D-hotfix.N tag it infers the base version instead — 26.8.22 for 26.8.22-hotfix.23 — with no audit failure to show for it."
+              echo "::error::Formula/navigator.rb declares no explicit version. Homebrew would infer one from the URL, and for a YY.M.D-hotfix.N or YY.M.D-rc.N tag it infers something else instead — 26.8.22 for 26.8.22-hotfix.23, 26.9.4 for 26.9.4-rc.1 — with no audit failure to show for it."
               exit 1
           fi
           grep -E '^[[:space:]]*version "[^"]+"$' Formula/navigator.rb
@@ -409,15 +411,20 @@ jobs:
               exit 1
           fi
 
-          # The newest release of EITHER shape. This formula holds one version
-          # and follows whichever release is newest, so asking `releases/latest`
-          # would skip hotfix prereleases and call the formula current while
-          # `brew` served something older. `/releases` is newest-first.
+          # The newest release of ANY shape. This formula holds one version and
+          # follows whichever release is newest, so asking `releases/latest`
+          # would skip the prerelease shapes — hotfixes and release candidates
+          # are both flagged `--prerelease` on GitHub — and call the formula
+          # current while `brew` served something older. `/releases` is
+          # newest-first.
           #
           # The same shape `bump.sh` and `bump.yml` accept, written with `[.]`
           # rather than `\.` because this is a jq string literal, where a
-          # backslash would have to be doubled to survive into the regex.
-          shape='^[0-9]{2}[.](0|[1-9][0-9]?)[.](0|[1-9][0-9]?)(-hotfix[.](0|[1-9][0-9]*))?$'
+          # backslash would have to be doubled to survive into the regex. If
+          # these three ever disagree, the disagreement shows up here as a drift
+          # failure nobody can bump their way out of: this job would demand a tag
+          # the other two refuse.
+          shape='^[0-9]{2}[.](0|[1-9][0-9]?)[.](0|[1-9][0-9]?)(-(hotfix|rc)[.](0|[1-9][0-9]*))?$'
           latest="$(gh api "repos/${repo}/releases" \
               --jq "[.[] | select(.tag_name | test(\"${shape}\"))] | .[0].tag_name // \"\"")"
           if [ -z "${latest}" ]; then
