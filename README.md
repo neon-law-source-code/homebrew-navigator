@@ -30,7 +30,7 @@ stands in until it lands.
 
 ## How a release reaches this tap
 
-1. Someone pushes a `YY.M.D` tag to `neon-law-source-code/navigator`.
+1. Someone pushes a `YY.M.D` tag to `neon-law-source-code/navigator` — or a `YY.M.D-hotfix.N` or `YY.M.D-rc.N` one.
 2. That repository's `deploy.yml` proves the workspace, publishes the images, and builds three CLI archives on the
    free `windows-latest`, `ubuntu-latest`, and `macos-latest` runners, attaching them to the GitHub Release.
 3. Its `release-homebrew-tap` job fires a `repository_dispatch` at this repository carrying the tag.
@@ -41,12 +41,19 @@ stands in until it lands.
 carrying digests would let a malformed dispatch pin the formula to bytes nobody verified, and it would mean this
 repository could not repair itself from a bare tag.
 
+**The formula follows the newest release of any shape**, including the two GitHub flags as prereleases — a same-day
+`-hotfix.N` and a `-rc.N` release candidate. It holds one version and every `brew install` resolves to it, so that
+version has to be the newest build that exists rather than the newest of a preferred shape; skipping one leaves `brew`
+on whatever ordinary release last succeeded, with nothing to say so. A prerelease is still not the front-page download
+on GitHub — only `brew` follows it there.
+
 ### Bumping by hand
 
 Both halves work standalone. Run the workflow from the Actions tab (`bump` → *Run workflow* → the tag), or locally:
 
 ```bash
 scripts/bump.sh 26.8.17
+scripts/bump.sh 26.9.4-rc.1
 ```
 
 The script patches anchored lines and then asserts the result — a structural edit to the formula that breaks the patch
