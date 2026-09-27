@@ -40,7 +40,7 @@
 class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
   homepage "https://github.com/neon-law-source-code/navigator"
-  version "26.9.26"
+  version "26.9.27"
   # Navigator is BUSL-1.1: source-available, not open source. The workspace
   # manifest declares exactly that, and a formula that named a permissive
   # licence would offer recipients a grant Shook Law PLLC did not make. Read,
@@ -52,16 +52,16 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.26/navigator-26.9.26-macos.tar.gz"
-      sha256 "71e9c14dc802dd3abc6c301cd4334c5df1657e9c5aa57bb5e24e57080f492dd8"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.27/navigator-26.9.27-macos.tar.gz"
+      sha256 "c04bcd7243ee192193fc491de12a447777981da86cdba93e0437df741f96dda1"
     end
 
     on_intel do
       # No prebuilt x86_64 archive exists: `macos-latest` is Apple silicon, and
       # a second full release compile on the slowest runner class is not bought.
       # Compile the source tag instead.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.26.tar.gz"
-      sha256 "6522a4a7df3a1f63e199fcd5e71e54531d5c41ff1e5f3f493eb2c00e61c6b2af"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.27.tar.gz"
+      sha256 "09edfed8c3e3a71b8c60c28a3008f57d427302ac6cb0a358ad0732bb039fe1bf"
 
       depends_on "rust" => :build
     end
@@ -69,14 +69,14 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.26/navigator-26.9.26-linux.tar.gz"
-      sha256 "c90bd8b214ff2531956b21c505be8402f42918148b511fad56908b8bff7979a5"
+      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.27/navigator-26.9.27-linux.tar.gz"
+      sha256 "06d3a9fc05e7d0b65e1b58f16d1f58a9dbd857c2e88200361c31f6f6dd032e07"
     end
 
     on_arm do
       # Same reasoning as Intel macOS: the release publishes x86_64 Linux only.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.26.tar.gz"
-      sha256 "6522a4a7df3a1f63e199fcd5e71e54531d5c41ff1e5f3f493eb2c00e61c6b2af"
+      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.27.tar.gz"
+      sha256 "09edfed8c3e3a71b8c60c28a3008f57d427302ac6cb0a358ad0732bb039fe1bf"
 
       depends_on "rust" => :build
     end
