@@ -1,6 +1,9 @@
 # Homebrew Navigator
 
-The Homebrew tap for the [Neon Law Navigator](https://github.com/neon-law-source-code/navigator) CLI.
+The Homebrew tap for the [Neon Law Navigator](https://www.neonlaw.com/navigator) CLI — and, since ENG-931, the public
+distribution host for its release archives. [`neon-law-source-code/navigator`](https://github.com/neon-law-source-code/navigator)
+is the source tree; this repository is where anyone reads the CLI and LSP binaries from, and it stays public even
+after that one does not.
 
 ```bash
 brew install neon-law-source-code/navigator/navigator
@@ -16,12 +19,15 @@ enough.
 | --- | --- |
 | macOS, Apple silicon | Downloads the release archive. Seconds. |
 | Linux, x86_64 | Downloads the release archive. Seconds. |
-| macOS, Intel | Compiles the source tag. Needs a Rust toolchain, which brew installs; takes tens of minutes. |
-| Linux, arm64 | Compiles the source tag. Same cost. |
+| macOS, Intel | Not supported — no prebuilt archive, and no source build (see below). |
+| Linux, arm64 | Not supported — same reason. |
 
 A Navigator release publishes prebuilt archives for two architectures — `macos-latest` is Apple silicon and the
-container images are x86_64 Linux — so the other two platforms compile the immutable source tag instead. The result is
-the same binary reporting the same version; only the wait differs.
+container images are x86_64 Linux. Intel macOS and arm64 Linux used to compile the immutable source tag instead; that
+fallback compiled `neon-law-source-code/navigator`'s entire workspace tarball, and once that repository is no longer
+public there is no tarball left to fetch. Mirroring the whole private monorepo here just to keep two platforms with no
+prebuilt archive compiling is exactly what ENG-931 rules out, so `Formula/navigator.rb` now refuses cleanly on those
+two instead of trying. `.github/workflows/test.yml`'s `unsupported` job proves that refusal weekly.
 
 **On macOS, Homebrew is the install path that works.** The released binary is unsigned and unnotarized, and Gatekeeper
 blocks an unsigned Mach-O downloaded through a browser outright. Homebrew fetches with `curl`, which sets no
@@ -30,12 +36,18 @@ stands in until it lands.
 
 ## How a release reaches this tap
 
-1. Someone pushes a `YY.M.D` tag to `neon-law-source-code/navigator` — or a `YY.M.D-hotfix.N` or `YY.M.D-rc.N` one.
-2. That repository's `deploy.yml` proves the workspace, publishes the images, and builds three CLI archives on the
-   free `windows-latest`, `ubuntu-latest`, and `macos-latest` runners, attaching them to the GitHub Release.
-3. Its `release-homebrew-tap` job fires a `repository_dispatch` at this repository carrying the tag.
-4. [`.github/workflows/bump.yml`](.github/workflows/bump.yml) downloads each published artifact, computes its sha256,
-   rewrites [`Formula/navigator.rb`](Formula/navigator.rb), installs and tests the result on the runner, and pushes.
+1. Someone merges a `YY.M.D` version bump to `neon-law-source-code/navigator`'s `main` — or a `YY.M.D-hotfix.N` or
+   `YY.M.D-rc.N` one is cut by hand.
+2. That repository's `deploy.yml` proves the workspace, publishes the images, and builds three CLI and three
+   `navigator-lsp` archives on the free `windows-latest`, `ubuntu-latest`, and `macos-latest` runners, attaching them
+   to its own GitHub Release.
+3. The same job then mirrors those same archives, their sha256 sidecars, `LICENSE`, `NOTICE`, and the install script
+   onto a Release **on this repository**, tag for tag — the public distribution host ENG-931 made this. Its
+   `release-homebrew-tap` job fires a `repository_dispatch` at this repository carrying the tag only once that mirror
+   lands.
+4. [`.github/workflows/bump.yml`](.github/workflows/bump.yml) downloads each artifact **from this repository's own
+   Release**, computes its sha256, rewrites [`Formula/navigator.rb`](Formula/navigator.rb), installs and tests the
+   result on the runner, and pushes.
 
 **The digests are computed here, from the published bytes.** The dispatch carries a tag and nothing else. A payload
 carrying digests would let a malformed dispatch pin the formula to bytes nobody verified, and it would mean this
@@ -63,8 +75,8 @@ structure freely; the five values it moves are not yours to hand-edit.
 ## Testing
 
 [`.github/workflows/test.yml`](.github/workflows/test.yml) installs and tests the formula on every push and pull
-request for the two prebuilt platforms, and weekly for the two that compile from source. All four runner classes are
-free for public repositories.
+request for the two prebuilt platforms, and weekly confirms the other two still refuse to install rather than silently
+trying to build something. All four runner classes are free for public repositories.
 
 The weekly run also checks that the formula still points at the newest Navigator release. Every other job proves the
 formula it finds installs; none of them notices when the bump stops running, which is how `brew install` came to serve
