@@ -23,23 +23,43 @@
 # outgoing version — so the substitution ate the example and left a sentence
 # that no longer explained anything.
 #
-# Two acquisition paths, because the release publishes two prebuilt
-# architectures and no more:
+# ONE ACQUISITION PATH NOW: arm64 macOS and x86_64 Linux download the archive
+# `deploy.yml` attaches to its Release, mirrored here (ENG-931 below). Intel
+# macOS and arm64 Linux have no prebuilt archive and this formula no longer
+# compiles a fallback for them — see ENG-931 in both `on_intel` blocks below for
+# why.
 #
-#   - arm64 macOS and x86_64 Linux download the archive `deploy.yml` attached to
-#     the GitHub Release. Seconds, no toolchain.
-#   - Intel macOS and arm64 Linux compile the immutable source tag. Minutes, and
-#     a Rust toolchain — but it is the only honest option for a platform whose
-#     bytes were never built.
+# ENG-931: NAVIGATOR'S SOURCE REPOSITORY STOPPED BEING THE RELEASE HOST. Every
+# `url` line here used to name `neon-law-source-code/navigator` — the source
+# tree — because that repository's own Release carried the archives. It will
+# not stay public, so `deploy.yml` now mirrors the same tag-exact archives onto
+# THIS repository's own Release as well, and every `url` line below names this
+# repository instead. `scripts/bump.sh` computes every digest from those bytes,
+# same as it always did — only the host moved.
 #
-# Homebrew is also what makes the macOS binary usable at all. It is unsigned and
-# unnotarized, and Gatekeeper blocks a *browser*-downloaded unsigned Mach-O
-# outright; brew fetches with curl, which sets no `com.apple.quarantine`
-# attribute, so the same bytes run. Signing is still worth doing — this is a
-# workaround for its absence, not a replacement.
+# The source-tarball fallback for Intel macOS and arm64 Linux is gone rather
+# than moved, because it compiled `neon-law-source-code/navigator`'s ENTIRE
+# workspace tarball — the whole private monorepo once that repository stops
+# being public, not something this tap may mirror (ENG-931's boundary: never
+# mirror the whole private monorepo, only the allowlisted LSP/rules source).
+# Compiling a fallback from a mirrored tarball of just `cli/` was considered and
+# rejected: the CLI's `Cargo.toml` names path dependencies elsewhere in the
+# workspace, so a partial mirror would not build either, and maintaining a
+# second, narrower source export for two platforms with no prebuilt archive
+# cost more than documenting the reduced matrix these two `odie` calls state.
+#
+# Homebrew is also what makes the macOS binary usable at all, independent of
+# any of the above. It is unsigned and unnotarized, and Gatekeeper blocks a
+# *browser*-downloaded unsigned Mach-O outright; brew fetches with curl, which
+# sets no `com.apple.quarantine` attribute, so the same bytes run. Signing is
+# still worth doing — this is a workaround for its absence, not a replacement.
 class Navigator < Formula
   desc "Neon Law Navigator CLI — legal workflow, notation, and deployment tooling"
-  homepage "https://github.com/neon-law-source-code/navigator"
+  # ENG-931: the product page, not the source repository — `brew audit
+  # --online` fetches this and needs it to keep resolving once the source
+  # repository is private. `webapp::source_repository::NAVIGATOR_HREF` is the
+  # same URL the public footer links.
+  homepage "https://www.neonlaw.com/navigator"
   version "26.9.27"
   # Navigator is BUSL-1.1: source-available, not open source. The workspace
   # manifest declares exactly that, and a formula that named a permissive
@@ -52,52 +72,47 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.27/navigator-26.9.27-macos.tar.gz"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.9.27/navigator-26.9.27-macos.tar.gz"
       sha256 "c04bcd7243ee192193fc491de12a447777981da86cdba93e0437df741f96dda1"
     end
 
     on_intel do
-      # No prebuilt x86_64 archive exists: `macos-latest` is Apple silicon, and
-      # a second full release compile on the slowest runner class is not bought.
-      # Compile the source tag instead.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.27.tar.gz"
-      sha256 "09edfed8c3e3a71b8c60c28a3008f57d427302ac6cb0a358ad0732bb039fe1bf"
-
-      depends_on "rust" => :build
+      # ENG-931: no prebuilt archive exists for Intel macOS — `macos-latest` is
+      # Apple silicon — and this formula no longer falls back to compiling the
+      # source tag. That tag used to be `neon-law-source-code/navigator`'s own
+      # tarball; once that repository stops being public the tarball is gone,
+      # and mirroring the whole private monorepo here to keep it working is
+      # exactly what ENG-931 forbids. See the header comment above.
+      odie "no prebuilt navigator archive exists for Intel macOS, and this " \
+           "formula no longer compiles one from source. Install on Apple " \
+           "silicon or x86_64 Linux instead, or use the Linux install script " \
+           "(see docs/gitops.md's Homebrew tap section in the Navigator " \
+           "repository) inside a container or VM on this machine."
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/navigator/releases/download/26.9.27/navigator-26.9.27-linux.tar.gz"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.9.27/navigator-26.9.27-linux.tar.gz"
       sha256 "06d3a9fc05e7d0b65e1b58f16d1f58a9dbd857c2e88200361c31f6f6dd032e07"
     end
 
     on_arm do
-      # Same reasoning as Intel macOS: the release publishes x86_64 Linux only.
-      url "https://github.com/neon-law-source-code/navigator/archive/refs/tags/26.9.27.tar.gz"
-      sha256 "09edfed8c3e3a71b8c60c28a3008f57d427302ac6cb0a358ad0732bb039fe1bf"
-
-      depends_on "rust" => :build
+      # Same reasoning as Intel macOS above: the release publishes x86_64
+      # Linux only, and there is no source-tag fallback left to compile.
+      odie "no prebuilt navigator archive exists for arm64 Linux, and this " \
+           "formula no longer compiles one from source. Install on x86_64 " \
+           "Linux or Apple silicon instead."
     end
   end
 
   def install
-    # Which of the two URLs above was fetched is decided by the platform, and
-    # the unpacked tree is the only thing that can tell us which one landed. A
-    # prebuilt archive holds `navigator` at its root; a source tarball holds
-    # `Cargo.toml`. Branch on the artifact rather than re-deriving the platform,
-    # so the two can never disagree.
-    if File.exist?("navigator")
-      bin.install "navigator"
-    else
-      # `cli/build.rs` bakes this into `navigator --version`. Without it a
-      # source build reports the workspace placeholder rather than the release
-      # it was compiled from, and the `test do` block below would fail — which
-      # is the point: the version a binary claims must be the version it is.
-      ENV["NAVIGATOR_RELEASE_TAG"] = version.to_s
-      system "cargo", "install", *std_cargo_args(path: "cli")
-    end
+    # Every supported platform now installs the same way: the one prebuilt
+    # archive its `on_macos`/`on_linux` block named. Nothing reaches `install`
+    # for Intel macOS or arm64 Linux — the `odie` calls above abort before
+    # Homebrew gets here — so there is no second branch to keep in sync with
+    # them.
+    bin.install "navigator"
 
     # LICENSE and NOTICE travel with the install, exactly as they travel with
     # the archive. These are Navigator's own two files, staged from whichever
@@ -118,9 +133,8 @@ class Navigator < Formula
     # reason, and installing only LICENSE made brew — the install path macOS
     # users are told to use — the one route by which it never arrives.
     #
-    # Both acquisition paths carry both files at their root: the prebuilt
-    # archives hold `navigator`, `LICENSE`, `NOTICE` and nothing else, and the
-    # source tag carries them at the tree root.
+    # Every prebuilt archive carries `navigator`, `LICENSE`, `NOTICE` and
+    # nothing else at its root.
     prefix.install "LICENSE"
     prefix.install "NOTICE"
   end
@@ -128,8 +142,7 @@ class Navigator < Formula
   test do
     # The one assertion worth making: the binary reports the version this
     # formula claims. It catches a bump that patched the URL but not the
-    # `version` line, a stale asset served under a new tag, and a source build
-    # whose release tag never reached `build.rs`.
+    # `version` line, and a stale asset served under a new tag.
     assert_match version.to_s, shell_output("#{bin}/navigator --version")
   end
 end

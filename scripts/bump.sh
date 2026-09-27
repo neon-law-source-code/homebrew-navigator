@@ -1,17 +1,32 @@
 #!/usr/bin/env bash
 #
-# Point `Formula/navigator.rb` at a `YY.M.D` release of
-# `neon-law-source-code/navigator`.
+# Point `Formula/navigator.rb` at a `YY.M.D` release published to THIS
+# repository, `neon-law-source-code/homebrew-navigator`.
 #
 #   scripts/bump.sh 26.8.17
 #   scripts/bump.sh 26.8.20-hotfix.4
 #   scripts/bump.sh 26.9.4-rc.1
 #
-# Five values move: the version, and the sha256 of each of the three artifacts
-# a Navigator release makes available (the macOS archive, the Linux archive,
-# and the source tarball, which two platforms compile). The source tarball's
-# digest appears twice, once per source-building platform. A sixth may move —
-# `version_scheme` — for the reason below.
+# ENG-931: `neon-law-source-code/navigator`'s `deploy.yml` now mirrors the same
+# tag-exact archives it attaches to its own Release onto THIS repository's
+# Release as well, before it dispatches the bump this script performs — so by
+# the time this runs, the bytes it digests are already sitting here. This
+# repository is the release host now because the source repository will not
+# stay public; publishing archives to a place readers can always reach
+# anonymously is the whole point of ENG-931's "make public distribution
+# independent first" step.
+#
+# Three values move: the version and the sha256 of each of the two prebuilt
+# archives this tap installs (the macOS archive and the Linux archive). A
+# fourth may move — `version_scheme` — for the reason below.
+#
+# THERE IS NO THIRD ARTIFACT ANY MORE. Intel macOS and arm64 Linux used to
+# compile `neon-law-source-code/navigator`'s source tarball, and that fallback
+# is gone rather than moved here: mirroring the whole private monorepo so two
+# platforms with no prebuilt archive keep compiling is exactly what ENG-931
+# forbids ("never mirror the whole private monorepo"). `Formula/navigator.rb`
+# now `odie`s on those two platforms instead, and this script computes no
+# digest for either.
 #
 # EVERY SHAPE NAVIGATOR PUBLISHES IS ACCEPTED: an ordinary `YY.M.D`, a same-day
 # `YY.M.D-hotfix.N`, and a `YY.M.D-rc.N` release candidate. Navigator publishes
@@ -57,7 +72,7 @@
 # formula with a stale digest.
 set -euo pipefail
 
-readonly REPO="neon-law-source-code/navigator"
+readonly REPO="neon-law-source-code/homebrew-navigator"
 FORMULA="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/Formula/navigator.rb"
 readonly FORMULA
 
@@ -99,12 +114,8 @@ sha_macos="$(digest \
 sha_linux="$(digest \
     "https://github.com/${REPO}/releases/download/${TAG}/navigator-${TAG}-linux.tar.gz" \
     linux.tar.gz)"
-sha_source="$(digest \
-    "https://github.com/${REPO}/archive/refs/tags/${TAG}.tar.gz" \
-    source.tar.gz)"
 echo "    macos  ${sha_macos}"
 echo "    linux  ${sha_linux}"
-echo "    source ${sha_source}"
 
 # The version currently in the formula, read from the file rather than passed
 # in, so a re-run against an already-bumped formula is a no-op instead of a
@@ -182,12 +193,11 @@ fi
 # platform blocks cannot silently pair a digest with the wrong download.
 awk \
     -v macos="${sha_macos}" \
-    -v linux="${sha_linux}" \
-    -v source="${sha_source}" '
+    -v linux="${sha_linux}" '
     /^[[:space:]]*url "/ {
         if ($0 ~ /-macos\.tar\.gz"$/)      { pending = macos }
         else if ($0 ~ /-linux\.tar\.gz"$/) { pending = linux }
-        else                               { pending = source }
+        else                               { pending = "" }
         print; next
     }
     /^[[:space:]]*sha256 "/ && pending != "" {
@@ -243,8 +253,11 @@ fi
 
 urls="$(grep -c '^[[:space:]]*url "' "${workdir}/navigator.rb")"
 digests="$(grep -c '^[[:space:]]*sha256 "' "${workdir}/navigator.rb")"
-[[ "${urls}" -eq 4 ]] || fail "expected 4 \`url\` lines, found ${urls}"
-[[ "${digests}" -eq 4 ]] || fail "expected 4 \`sha256\` lines, found ${digests}"
+# ENG-931: two now, not four — the source-tarball fallback for Intel macOS and
+# arm64 Linux is gone (see the header comment), so there is one url/sha256 pair
+# per prebuilt archive and no third artifact to digest twice.
+[[ "${urls}" -eq 2 ]] || fail "expected 2 \`url\` lines, found ${urls}"
+[[ "${digests}" -eq 2 ]] || fail "expected 2 \`sha256\` lines, found ${digests}"
 
 while read -r line; do
     printf '%s' "${line}" | grep -q "${TAG}" ||
@@ -268,7 +281,7 @@ if grep -q 'sha256 "0\{64\}"' "${workdir}/navigator.rb"; then
     fail "a sha256 is still the all-zero placeholder — one url did not match a known artifact"
 fi
 
-for expected in "${sha_macos}" "${sha_linux}" "${sha_source}"; do
+for expected in "${sha_macos}" "${sha_linux}"; do
     grep -q "sha256 \"${expected}\"" "${workdir}/navigator.rb" ||
         fail "the computed digest ${expected} did not reach the formula"
 done
