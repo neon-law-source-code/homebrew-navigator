@@ -60,7 +60,7 @@ class Navigator < Formula
   # repository is private. `webapp::source_repository::NAVIGATOR_HREF` is the
   # same URL the public footer links.
   homepage "https://www.neonlaw.com/navigator"
-  version "26.10.15-rc.1"
+  version "26.10.15"
   # Navigator is BUSL-1.1: source-available, not open source. The workspace
   # manifest declares exactly that, and a formula that named a permissive
   # licence would offer recipients a grant Shook Law PLLC did not make. Read,
@@ -72,8 +72,8 @@ class Navigator < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.15-rc.1/navigator-26.10.15-rc.1-macos.tar.gz"
-      sha256 "70c0cd0a8568843e6711ca8127c6b43629b2e0e4592fd10f9aa92acbc7ca531b"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.15/navigator-26.10.15-macos.tar.gz"
+      sha256 "dabb43e2b058f69f76069cd4ee1f44e1c4d9d64e7eebd227ce94f18b8857bf72"
     end
 
     on_intel do
@@ -93,8 +93,8 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.15-rc.1/navigator-26.10.15-rc.1-linux.tar.gz"
-      sha256 "b68ea150c5b4fe96ecf97d9e5c128dc693d96dc6f294ad9d4d76db176a618d2b"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.15/navigator-26.10.15-linux.tar.gz"
+      sha256 "1b63f9332fb7b8ee0154cd593dc0a5ff14b9431fe64e755f4c5ec07babe4aeab"
     end
 
     on_arm do
