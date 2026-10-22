@@ -61,13 +61,8 @@ class Navigator < Formula
   # same URL the public footer links.
   homepage "https://www.neonlaw.com/navigator"
   version "26.10.22"
-  # Navigator is BUSL-1.1: source-available, not open source. The workspace
-  # manifest declares exactly that, and a formula that named a permissive
-  # licence would offer recipients a grant Shook Law PLLC did not make. Read,
-  # build, fork, and redistribute it freely; production use needs a commercial
-  # licence until the version's Change Date, four years after it is published,
-  # converts it to AGPL-3.0-only.
-  license "BUSL-1.1"
+  # The installed CLI offers either license; the tap has its own terms.
+  license any_of: ["MIT", "Apache-2.0"]
   version_scheme 1
 
   on_macos do
@@ -114,35 +109,18 @@ class Navigator < Formula
     # them.
     bin.install "navigator"
 
-    # LICENSE and NOTICE travel with the install, exactly as they travel with
-    # the archive. These are Navigator's own two files, staged from whichever
-    # tree was fetched — not this tap's; the binary carries its licence, and the
-    # tap carries its own.
-    #
-    # BUSL requires the licence to be conspicuously displayed on every copy of
-    # the Licensed Work, and it is the licence that tells the holder what they
-    # may do — non-production use now, AGPL-3.0-only after the Change Date. A
-    # recipient holds the binary rather than the repository — that is the whole
-    # point of shipping one — so this is where the obligation is met or not at
-    # all.
-    #
-    # NOTICE is the other half and was being dropped here. It is the file that
-    # names the copyright holder, reserves the NEON LAW marks the licence does
-    # not reach, and says where a commercial licence comes from. `deploy.yml`
-    # stages it beside the executable in every release archive for exactly that
-    # reason, and installing only LICENSE made brew — the install path macOS
-    # users are told to use — the one route by which it never arrives.
-    #
-    # Every prebuilt archive carries `navigator`, `LICENSE`, `NOTICE` and
-    # nothing else at its root.
-    prefix.install "LICENSE"
-    prefix.install "NOTICE"
+    # Stage the CLI's own license grants and notices from the release archive.
+    prefix.install "LICENSE", "LICENSE-MIT", "LICENSE-APACHE-2", "NOTICE"
   end
 
   test do
-    # The one assertion worth making: the binary reports the version this
-    # formula claims. It catches a bump that patched the URL but not the
-    # `version` line, and a stale asset served under a new tag.
     assert_match version.to_s, shell_output("#{bin}/navigator --version")
+    assert_match "MIT", shell_output("#{bin}/navigator --license")
+    assert_match "Apache", shell_output("#{bin}/navigator --license")
+    assert_match "license", shell_output("#{bin}/navigator --third-party-notices").downcase
+    %w[LICENSE LICENSE-MIT LICENSE-APACHE-2 NOTICE].each do |name|
+      assert_path_exists prefix/name
+      refute_empty (prefix/name).read
+    end
   end
 end

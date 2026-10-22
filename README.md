@@ -84,20 +84,18 @@ a version two releases behind for three days.
 
 ## Licence
 
-Navigator is **source-available, not open source**, under the [Business Source License 1.1](LICENSE): `BUSL-1.1`. This
-tap is offered under the same terms. Read it, build it, fork it, redistribute it, and make any non-production use of
-it. **Production use needs a commercial licence** from Shook Law PLLC. Four years after a version is published, that
-version converts to `AGPL-3.0-only` and the restriction ends for it permanently.
+The installed Navigator CLI is licensed under **MIT OR Apache-2.0**. Choose either license when using or
+redistributing it; third-party components retain their own terms. `navigator --license` prints the embedded first-party
+licenses and notices, and `navigator --third-party-notices` prints dependency notices.
 
-The formula installs Navigator's own `LICENSE` and `NOTICE` alongside the binary, because BUSL requires the licence to
-be displayed on every copy of the Licensed Work, and whoever runs `brew install` holds the binary rather than this
-repository. Both files sit in the keg prefix, and `navigator --license` prints them itself.
+The formula installs Navigator's `LICENSE`, `LICENSE-MIT`, `LICENSE-APACHE-2`, and `NOTICE` from its release archive in
+the keg prefix. These files describe the CLI, separately from this tap's own license.
 
 This tap's own terms are its [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) — the instrument, and the Firm's account of
 how it applies. `NOTICE` is where the Licensed Work here is identified as the tap rather than the binary.
 
 **What you may run without a commercial licence is pinned in `LICENSE` itself**, in the Additional Use Grant, whose
-first paragraph is shared word-for-word with Navigator and Navigator UX. You may operate the Licensed Work anywhere,
+terms apply to this tap. You may operate the Licensed Work anywhere,
 the cloud included, to evaluate, develop against, test, or demonstrate it, for so long as nothing relies on the
 result — the test is reliance, not where the software runs. **This tap adds one sentence: installing and updating
 Navigator by means of it is granted outright**, relied upon or not, which is what stops the install path we recommend
