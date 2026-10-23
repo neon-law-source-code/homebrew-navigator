@@ -60,15 +60,15 @@ class Navigator < Formula
   # repository is private. `webapp::source_repository::NAVIGATOR_HREF` is the
   # same URL the public footer links.
   homepage "https://www.neonlaw.com/navigator"
-  version "26.10.23"
+  version "26.10.24-rc.1"
   # The installed CLI offers either license; the tap has its own terms.
   license any_of: ["MIT", "Apache-2.0"]
   version_scheme 1
 
   on_macos do
     on_arm do
-      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.23/navigator-26.10.23-macos.tar.gz"
-      sha256 "efc550a47aa7b3141fb0202536db1552ba7dc09b7fab6923b6f5249608f75815"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.24-rc.1/navigator-26.10.24-rc.1-macos.tar.gz"
+      sha256 "05ee43451ebc7f8df4a9c667ded0cc725eba966c1be3efcaacea0fcfaf5d800c"
     end
 
     on_intel do
@@ -88,8 +88,8 @@ class Navigator < Formula
 
   on_linux do
     on_intel do
-      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.23/navigator-26.10.23-linux.tar.gz"
-      sha256 "bc5c9d6b19e06e1c0d2bbc367d7a887304b7b92e249c7b8d153957d2b66a0a64"
+      url "https://github.com/neon-law-source-code/homebrew-navigator/releases/download/26.10.24-rc.1/navigator-26.10.24-rc.1-linux.tar.gz"
+      sha256 "11a0ace35991ed0295ee6152b70e68e6da55f0a700aadccc14da027d2b63d75b"
     end
 
     on_arm do
